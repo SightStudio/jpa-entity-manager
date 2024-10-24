@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class StatefulPersistenceContext implements PersistenceContext {
 
-    private Map<EntityKey, Object> cachedEntities;
+    private final Map<EntityKey, Object> cachedEntities;
     private final EntityPersister entityPersister;
     private final QueryBuilder queryBuilder;
     private final JpaSettings settings;
@@ -29,7 +29,7 @@ public class StatefulPersistenceContext implements PersistenceContext {
         }
 
         T entity = queryBuilder.selectFrom(clazz)
-                .findById(entityKey.getIdValue())
+                .findById(entityKey.idValue())
                 .fetchOne();
 
         if (entity != null) {
@@ -50,16 +50,11 @@ public class StatefulPersistenceContext implements PersistenceContext {
     @Override
     public <T> T addEntity(T entity) {
         var tableEntity = new TableEntity<>(entity, settings);
-        var entityKey = new EntityKey(tableEntity);
+        var entityKey = new EntityKey(entity.getClass(), tableEntity.getIdValue());
 
         T persistedEntity = entityPersister.persist(entity);
         cachedEntities.put(entityKey, persistedEntity);
         return persistedEntity;
-    }
-
-    @Override
-    public boolean containsEntity(EntityKey key) {
-        return cachedEntities.containsKey(key);
     }
 
     @Override
@@ -70,13 +65,8 @@ public class StatefulPersistenceContext implements PersistenceContext {
     @Override
     public void removeEntity(Object entity) {
         var tableEntity = new TableEntity<>(entity, settings);
-        var entityKey = new EntityKey(tableEntity);
+        var entityKey = new EntityKey(tableEntity.getTableClass(), tableEntity.getIdValue());
         cachedEntities.remove(entityKey);
         entityPersister.remove(entity);
-    }
-
-    @Override
-    public void clear() {
-        cachedEntities = new HashMap<>();
     }
 }

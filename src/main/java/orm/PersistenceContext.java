@@ -6,11 +6,7 @@ public interface PersistenceContext {
 
     <T> T addEntity(T entity);
 
-    boolean containsEntity(EntityKey key);
-
     void updateEntity(Object entity);
 
     void removeEntity(Object entity);
-
-    void clear();
 }
