@@ -1,4 +1,4 @@
-package orm.dsl.extractor;
+package orm.dsl.holder;
 
 import jakarta.persistence.Id;
 import org.slf4j.Logger;

@@ -3,11 +3,12 @@ package orm;
 import jakarta.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import orm.dsl.extractor.EntityIdHolder;
+import orm.dsl.holder.EntityIdHolder;
 import orm.exception.EntityHasNoDefaultConstructorException;
 import orm.exception.InvalidEntityException;
 import orm.exception.InvalidIdMappingException;
 import orm.settings.JpaSettings;
+import orm.validator.EntityValidator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -37,18 +38,19 @@ public class TableEntity<E> {
     private final JpaSettings jpaSettings;
 
     public TableEntity(Class<E> entityClass, JpaSettings settings) {
-        throwIfNotEntity(entityClass);
+        this.entity = createNewInstanceByDefaultConstructor(entityClass);
+        new EntityValidator<>(entity).validate();
+
         this.jpaSettings = settings;
         this.tableName = extractTableName(entityClass);
         this.tableClass = entityClass;
-        this.entity = createNewInstanceByDefaultConstructor(entityClass);
         this.id = extractId();
         this.allFields = extractAllPersistenceFields(entityClass);
     }
 
     public TableEntity(E entity, JpaSettings settings) {
+        new EntityValidator<>(entity).validate();
         Class<E> entityClass = (Class<E>) entity.getClass();
-        throwIfNotEntity(entityClass);
         this.jpaSettings = settings;
         this.tableName = extractTableName(entityClass);
         this.tableClass = entityClass;

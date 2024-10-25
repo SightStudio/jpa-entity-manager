@@ -15,19 +15,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TableEntityTest {
 
     @Test
-    @DisplayName("@Entity가 아닌 클래스는 TableEntity가 될 수 없다.")
-    void 엔티티_검증() {
-
-        // given
-        Class<DummyClass> tableClass = DummyClass.class;
-
-        // when && then
-        assertThatThrownBy(() -> new TableEntity<>(tableClass))
-                .isInstanceOf(InvalidEntityException.class)
-                .hasMessageContaining("is not an entity");
-    }
-
-    @Test
     @DisplayName("@Table 에너테이션이 있으면, 클래스명이 아닌 @Table으로 테이블명을 가져온다.")
     void 테이블_검증() {
 
@@ -54,11 +41,6 @@ public class TableEntityTest {
         assertThatThrownBy(() -> new TableEntity<>(entityClass))
                 .isInstanceOf(EntityHasNoDefaultConstructorException.class);
     }
-}
-
-// 이 클래스에는 @Entity가 없다.
-class DummyClass {
-
 }
 
 @Entity

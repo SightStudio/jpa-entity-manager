@@ -1,6 +1,6 @@
 package orm;
 
-import orm.dsl.extractor.EntityIdHolder;
+import orm.dsl.holder.EntityIdHolder;
 
 import java.io.Serializable;
 

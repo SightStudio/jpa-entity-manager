@@ -28,19 +28,6 @@ public class TableFieldTest {
     }
 
     @Test
-    @DisplayName("하나의 필드에 @Column 과 @Transient이 동시에 사용 될 수 없다.")
-    void transient_테스트_2() {
-
-        // given
-        Class<InvalidDummyEntity> invalidEntity = InvalidDummyEntity.class;
-
-        // when & then
-        assertThatThrownBy(() -> new TableEntity<>(invalidEntity))
-                .isInstanceOf(InvalidEntityException.class)
-                .hasMessageContaining("@Transient & @Column cannot be used in same field");
-    }
-
-    @Test
     @DisplayName("데이터가 들어있는 엔티티로 TableEntit y를 만들면 하위 TableField 들이 값을 가지고 있다.")
     void 테이블_필드_데이터존재_검증() {
 
@@ -76,15 +63,4 @@ class DummyEntity {
     public void setFieldName2(String fieldName2) {
         this.fieldName2 = fieldName2;
     }
-}
-
-@Entity
-class InvalidDummyEntity {
-
-    @Id
-    private Long id;
-
-    @Column
-    @Transient
-    private String thisIdNotField2; // 사용
 }
