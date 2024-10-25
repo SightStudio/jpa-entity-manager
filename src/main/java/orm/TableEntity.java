@@ -77,14 +77,6 @@ public class TableEntity<E> {
         return id;
     }
 
-    public Object getIdValue() {
-        return id.getFieldValue();
-    }
-
-    public boolean hasIdValue() {
-        return id.getFieldValue() != null;
-    }
-
     public void setIdValue(Object idValue) {
         id.setIdValue(idValue);
     }
@@ -199,6 +191,7 @@ public class TableEntity<E> {
 
     /**
      * 모든 필드를 주어진 필드로 교체한다.
+     *
      * @param tableFields 교체할 필드
      */
     public void replaceAllFields(List<? extends TableField> tableFields) {
@@ -215,7 +208,6 @@ public class TableEntity<E> {
      * TableField에 세팅된 값들을 엔티티 클래스의 값에 적용한다.
      */
     public void syncFieldValueToEntity() {
-
         // non-id field들의 fieldName과 fieldValue를 매핑
         Map<String, Object> classFieldNameMap = this.getNonIdFields().stream()
                 .collect(Collectors.toMap(TableField::getClassFieldName, TableField::getFieldValue));
@@ -224,15 +216,19 @@ public class TableEntity<E> {
         classFieldNameMap.put(id.getClassFieldName(), id.getFieldValue());
 
         for (Field declaredField : tableClass.getDeclaredFields()) {
-            declaredField.setAccessible(true);
-            try {
-                Object fieldValue = classFieldNameMap.get(declaredField.getName());
-                if (fieldValue != null) {
-                    declaredField.set(entity, fieldValue);
-                }
-            } catch (IllegalAccessException e) {
-                logger.error("Cannot access field: " + declaredField.getName(), e);
+            var fieldValue = classFieldNameMap.get(declaredField.getName());
+            setFieldValue(declaredField, fieldValue);
+        }
+    }
+
+    private void setFieldValue(Field declaredField, Object fieldValue) {
+        declaredField.setAccessible(true);
+        try {
+            if (fieldValue != null) {
+                declaredField.set(entity, fieldValue);
             }
+        } catch (IllegalAccessException e) {
+            logger.error("Cannot access field: " + declaredField.getName(), e);
         }
     }
 }

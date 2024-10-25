@@ -29,15 +29,6 @@ public class SessionImpl implements EntityManager {
         return null;
     }
 
-    /**
-     * 엔티티 저장
-     * <p>
-     * 엔티티메니저에서는 bulk insert가 불가능 하지만
-     * QueryBuilder 를 직접 쓰면 가능함.
-     *
-     * @param entity 엔티티 클래스
-     * @return 엔티티
-     */
     @Override
     public <T> T persist(T entity) {
         var persistedEntity = entityPersister.persist(entity);
