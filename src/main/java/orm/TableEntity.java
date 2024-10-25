@@ -3,17 +3,16 @@ package orm;
 import jakarta.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import orm.dsl.extractor.EntityIdHolder;
 import orm.exception.EntityHasNoDefaultConstructorException;
 import orm.exception.InvalidEntityException;
 import orm.exception.InvalidIdMappingException;
 import orm.settings.JpaSettings;
-import orm.util.CollectionUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,6 +23,7 @@ import java.util.stream.Collectors;
  * @param <E> @Entity 어노테이션이 붙은 클래스
  */
 public class TableEntity<E> {
+
     private static final Logger logger = LoggerFactory.getLogger(TableEntity.class);
 
     private final String tableName;
@@ -42,7 +42,7 @@ public class TableEntity<E> {
         this.tableName = extractTableName(entityClass);
         this.tableClass = entityClass;
         this.entity = createNewInstanceByDefaultConstructor(entityClass);
-        this.id = extractId(entityClass);
+        this.id = extractId();
         this.allFields = extractAllPersistenceFields(entityClass);
     }
 
@@ -53,7 +53,7 @@ public class TableEntity<E> {
         this.tableName = extractTableName(entityClass);
         this.tableClass = entityClass;
         this.entity = entity;
-        this.id = extractId(entityClass);
+        this.id = extractId();
         this.allFields = extractAllPersistenceFields(entityClass);
     }
 
@@ -141,18 +141,10 @@ public class TableEntity<E> {
      * @return TablePrimaryField ID 필드
      * @throws InvalidIdMappingException ID 필드가 없거나 2개 이상인 경우
      */
-    private TablePrimaryField extractId(Class<E> entityClass) {
-        Field[] declaredFields = entityClass.getDeclaredFields();
-
-        var idList = Arrays.stream(declaredFields)
-                .filter(field -> field.isAnnotationPresent(Id.class))
-                .toList();
-
-        if (CollectionUtils.isEmpty(idList) || idList.size() != 1) {
-            throw new InvalidIdMappingException("Entity must have one @Id field");
-        }
-
-        return new TablePrimaryField(idList.getFirst(), entity, jpaSettings);
+    private TablePrimaryField extractId() {
+        EntityIdHolder<E> entityIdHolder = new EntityIdHolder<>(entity);
+        Field idField = entityIdHolder.getIdField();
+        return new TablePrimaryField(idField, entity, jpaSettings);
     }
 
     /**

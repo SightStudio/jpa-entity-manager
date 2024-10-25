@@ -1,20 +1,31 @@
 package orm;
 
 import orm.dsl.QueryBuilder;
-import orm.row_mapper.DefaultRowMapper;
-import orm.settings.JpaSettings;
 
 public class SessionImpl implements EntityManager {
 
     private final StatefulPersistenceContext persistenceContext;
+    private final EntityPersister entityPersister;
 
     public SessionImpl(QueryBuilder queryBuilder) {
-        this.persistenceContext = new StatefulPersistenceContext(queryBuilder);
+        this.persistenceContext = new StatefulPersistenceContext();
+        this.entityPersister = new DefaultEntityPersister(queryBuilder);
     }
 
     @Override
     public <T> T find(Class<T> clazz, Object id) {
-        return persistenceContext.getEntity(clazz, id);
+        T entityInContext = persistenceContext.getEntity(clazz, id);
+        if (entityInContext != null) {
+            return entityInContext;
+        }
+
+        T entity = entityPersister.find(clazz, id);
+        if (entity != null) {
+            persistenceContext.addEntity(entity);
+            return entity;
+        }
+
+        return null;
     }
 
     /**
@@ -28,17 +39,20 @@ public class SessionImpl implements EntityManager {
      */
     @Override
     public <T> T persist(T entity) {
-        return persistenceContext.addEntity(entity);
+        T persistedEntity = entityPersister.persist(entity);
+        return persistenceContext.addEntity(persistedEntity);
     }
 
     @Override
-    public <T> T update(T entity) {
+    public <T> T merge(T entity) {
+        entityPersister.update(entity);
         persistenceContext.updateEntity(entity);
         return entity;
     }
 
     @Override
     public void remove(Object entity) {
+        entityPersister.remove(entity);
         persistenceContext.removeEntity(entity);
     }
 }

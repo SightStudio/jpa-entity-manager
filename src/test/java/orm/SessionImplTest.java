@@ -12,7 +12,6 @@ import static steps.Steps.테이블_생성;
 
 public class SessionImplTest extends PluggableH2test {
 
-
     @Test
     @DisplayName("insert 후 find 메서드를 사용하면 엔티티 Object의 Equality와 Identity 모두 유지된다.")
     void find_테스트() {
@@ -110,8 +109,8 @@ public class SessionImplTest extends PluggableH2test {
 
     // TODO: 추후 Hibernate 1차 캐시를 구현하면 persistence() 메서드 하나로 insert와 update를 구분 할 수 있어야한다.
     @Test
-    @DisplayName("update 수정된 엔티티를 조회한다.")
-    void update_테스트() {
+    @DisplayName("merge 엔티티를 조회한다.")
+    void merge_테스트() {
         runInH2Db(jdbcTemplate -> {
 
             // given
@@ -122,7 +121,7 @@ public class SessionImplTest extends PluggableH2test {
 
             // when
             person.setName("설동민 - 수정함");
-            session.update(person);
+            session.merge(person);
             Person result = session.find(Person.class, 1L);
 
             // then
