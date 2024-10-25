@@ -18,11 +18,6 @@ public class DialectStatementLocator {
     private final SQLDialect dialect;
     private final QueryRunner queryRunner;
 
-    public DialectStatementLocator(SQLDialect dialect) {
-        this.dialect = dialect;
-        this.queryRunner = new QueryRunner();
-    }
-
     public DialectStatementLocator(SQLDialect dialect, QueryRunner queryRunner) {
         this.dialect = dialect;
         this.queryRunner = queryRunner;

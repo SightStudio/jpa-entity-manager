@@ -9,10 +9,6 @@ public class QueryRunner {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public QueryRunner() {
-        this.jdbcTemplate = null;
-    }
-
     public QueryRunner(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }

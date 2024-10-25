@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import persistence.sql.ddl.Person;
 import persistence.sql.ddl.mapper.PersonRowMapper;
+import test_double.FakeQueryRunner;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class QueryBuilderDeleteTest extends PluggableH2test {
     @BeforeEach
     void setUp() {
         queryBuilder = new QueryBuilder();
-        fakeQueryRunner = new QueryRunner(null);
+        fakeQueryRunner = new FakeQueryRunner();
     }
 
     @Test

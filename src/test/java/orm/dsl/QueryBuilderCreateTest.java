@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import persistence.sql.ddl.Person;
+import test_double.FakeQueryRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.SQLUtil.SQL_노멀라이즈;
@@ -17,7 +18,7 @@ public class QueryBuilderCreateTest {
     @BeforeEach
     void setUp() {
         queryBuilder = new QueryBuilder();
-        fakeQueryRunner = new QueryRunner(null);
+        fakeQueryRunner = new FakeQueryRunner();
     }
 
     @Test

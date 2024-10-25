@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import orm.exception.OrmPersistenceException;
 import persistence.sql.ddl.Person;
+import test_double.FakeQueryRunner;
 import test_entity.PersonWithAI;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class QueryBuilderInsertTest {
     @BeforeEach
     void setUp() {
         queryBuilder = new QueryBuilder();
-        fakeQueryRunner = new QueryRunner(null);
+        fakeQueryRunner = new FakeQueryRunner();
     }
 
     @Test
