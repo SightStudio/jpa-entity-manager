@@ -17,17 +17,19 @@ import static steps.Steps.테이블_생성;
 public class QueryBuilderDeleteTest extends PluggableH2test {
 
     QueryBuilder queryBuilder;
+    QueryRunner fakeQueryRunner;
 
     @BeforeEach
     void setUp() {
         queryBuilder = new QueryBuilder();
+        fakeQueryRunner = new QueryRunner(null);
     }
 
     @Test
     @DisplayName("DELETE 절 생성 테스트")
     void DML_DELETE_문_테스트() {
         // when
-        String query = queryBuilder.deleteFrom(Person.class)
+        String query = queryBuilder.deleteFrom(Person.class, fakeQueryRunner)
                 .extractSql();
 
         // then
@@ -39,7 +41,7 @@ public class QueryBuilderDeleteTest extends PluggableH2test {
     void DML_DELETE_문_조건절_테스트() {
         // given
         // when
-        String query = queryBuilder.deleteFrom(Person.class)
+        String query = queryBuilder.deleteFrom(Person.class, fakeQueryRunner)
                 .where(
                     eq("id", 1L)
                         .and(eq("name", "설동민"))
@@ -54,19 +56,20 @@ public class QueryBuilderDeleteTest extends PluggableH2test {
     @Test
     @DisplayName("DELETE 절 조건 실제 실행 테스트")
     void DML_DELETE_문_실행_테스트() {
-        runInH2Db((jdbcTemplate) -> {
+        runInH2Db((queryRunner) -> {
             // given
-            QueryBuilder queryBuilder = new QueryBuilder(jdbcTemplate);
-            테이블_생성(jdbcTemplate, Person.class);
-            Person_엔티티_생성(jdbcTemplate, new Person(1L, 30, "설동민"));
-            Person_엔티티_생성(jdbcTemplate, new Person(2L, 30, "설동민2"));
+            QueryBuilder queryBuilder = new QueryBuilder();
+
+            테이블_생성(queryRunner, Person.class);
+            Person_엔티티_생성(queryRunner, new Person(1L, 30, "설동민"));
+            Person_엔티티_생성(queryRunner, new Person(2L, 30, "설동민2"));
 
             // when
-            queryBuilder.deleteFrom(Person.class)
+            queryBuilder.deleteFrom(Person.class, queryRunner)
                     .where(eq("id", 1).or(eq("id", 2L)))
                     .execute();
 
-            List<Person> people = queryBuilder.selectFrom(Person.class)
+            List<Person> people = queryBuilder.selectFrom(Person.class, queryRunner)
                     .findAll()
                     .fetch(new PersonRowMapper());
 

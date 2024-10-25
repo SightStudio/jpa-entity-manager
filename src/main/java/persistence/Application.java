@@ -6,6 +6,7 @@ import jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import orm.dsl.QueryBuilder;
+import orm.dsl.QueryRunner;
 import persistence.sql.ddl.Person;
 
 import java.util.List;
@@ -18,12 +19,13 @@ public class Application {
         try {
             final DatabaseServer server = new H2();
             server.start();
+            final JdbcTemplate jdbcTemplate = new JdbcTemplate(server.getConnection());
+            final QueryRunner queryRunner = new QueryRunner(jdbcTemplate);
 
             QueryBuilder queryBuilder = new QueryBuilder();
-            final JdbcTemplate jdbcTemplate = new JdbcTemplate(server.getConnection());
 
             final String ddl = queryBuilder
-                    .createTable(Person.class)
+                    .createTable(Person.class, queryRunner)
                     .ifNotExist()
                     .extractSql();
 
@@ -33,11 +35,11 @@ public class Application {
                     new Person(3L, 30, "설동민 3")
             );
 
-            String insertQuery = queryBuilder.insertInto(Person.class)
+            String insertQuery = queryBuilder.insertInto(Person.class, queryRunner)
                     .values(newPeople)
                     .extractSql();
 
-            List<Person> peopleList = queryBuilder.selectFrom(Person.class)
+            List<Person> peopleList = queryBuilder.selectFrom(Person.class, queryRunner)
                     .fetch();
 
             server.stop();

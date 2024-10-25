@@ -3,7 +3,7 @@ package orm;
 import config.PluggableH2test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import orm.dsl.QueryBuilder;
+import orm.dsl.QueryRunner;
 import persistence.sql.ddl.Person;
 import test_entity.PersonWithAI;
 
@@ -15,12 +15,11 @@ public class SessionImplTest extends PluggableH2test {
     @Test
     @DisplayName("insert 후 find 메서드를 사용하면 엔티티 Object의 Equality와 Identity 모두 유지된다.")
     void find_테스트() {
-        runInH2Db(jdbcTemplate -> {
-
+        runInH2Db(queryRunner -> {
             // given
-            테이블_생성(jdbcTemplate, Person.class);
+            테이블_생성(queryRunner, Person.class);
+            SessionImpl session = new SessionImpl(queryRunner);
 
-            SessionImpl session = new SessionImpl(new QueryBuilder(jdbcTemplate));
             Person newPerson = new Person(1L, 30, "설동민");
             session.persist(newPerson);
 
@@ -41,12 +40,10 @@ public class SessionImplTest extends PluggableH2test {
     @Test
     @DisplayName("persist 메서드를 사용하면 엔티티 Object의 Equality와 Identity가 모두 유지된다.")
     void persistence_테스트() {
-        runInH2Db(jdbcTemplate -> {
-
+        runInH2Db(queryRunner -> {
             // given
-            테이블_생성(jdbcTemplate, Person.class);
-
-            SessionImpl session = new SessionImpl(new QueryBuilder(jdbcTemplate));
+            테이블_생성(queryRunner, Person.class);
+            SessionImpl session = new SessionImpl(queryRunner);
             Person newPerson = new Person(1L, 30, "설동민");
 
             // when
@@ -66,12 +63,11 @@ public class SessionImplTest extends PluggableH2test {
     @Test
     @DisplayName("auto-increment 키를 가진 엔티티를 persist 하면, db애서 채번된 auto-increment 값을 id 필드에 세팅한다.")
     void persistence_auto_increment_테스트() {
-        runInH2Db(jdbcTemplate -> {
-
+        runInH2Db(queryRunner -> {
             // given
-            테이블_생성(jdbcTemplate, PersonWithAI.class);
+            테이블_생성(queryRunner, PersonWithAI.class);
 
-            SessionImpl session = new SessionImpl(new QueryBuilder(jdbcTemplate));
+            SessionImpl session = new SessionImpl(queryRunner);
 
             // when
             PersonWithAI person = session.persist(new PersonWithAI(30L, "설동민"));
@@ -89,12 +85,12 @@ public class SessionImplTest extends PluggableH2test {
     @Test
     @DisplayName("delete 후 find 메서드를 사용하면 엔티티 결과는 null이 리턴된다.")
     void delete_테스트() {
-        runInH2Db(jdbcTemplate -> {
+        runInH2Db(queryRunner -> {
 
             // given
-            테이블_생성(jdbcTemplate, Person.class);
+            테이블_생성(queryRunner, Person.class);
 
-            SessionImpl session = new SessionImpl(new QueryBuilder(jdbcTemplate));
+            SessionImpl session = new SessionImpl(queryRunner);
             session.persist(new Person(1L, 30, "설동민"));
             Person person = session.find(Person.class, 1L);
 
@@ -111,12 +107,12 @@ public class SessionImplTest extends PluggableH2test {
     @Test
     @DisplayName("merge 엔티티를 조회한다.")
     void merge_테스트() {
-        runInH2Db(jdbcTemplate -> {
-
+        runInH2Db(queryRunner -> {
             // given
-            테이블_생성(jdbcTemplate, Person.class);
-            SessionImpl session = new SessionImpl(new QueryBuilder(jdbcTemplate));
+            테이블_생성(queryRunner, Person.class);
+            SessionImpl session = new SessionImpl(queryRunner);
             session.persist(new Person(1L, 30, "설동민"));
+
             Person person = session.find(Person.class, 1L);
 
             // when

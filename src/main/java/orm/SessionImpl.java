@@ -1,15 +1,16 @@
 package orm;
 
 import orm.dsl.QueryBuilder;
+import orm.dsl.QueryRunner;
 
 public class SessionImpl implements EntityManager {
 
     private final StatefulPersistenceContext persistenceContext;
     private final EntityPersister entityPersister;
 
-    public SessionImpl(QueryBuilder queryBuilder) {
+    public SessionImpl(QueryRunner queryRunner) {
         this.persistenceContext = new StatefulPersistenceContext();
-        this.entityPersister = new DefaultEntityPersister(queryBuilder);
+        this.entityPersister = new DefaultEntityPersister(new QueryBuilder(), queryRunner);
     }
 
     @Override
@@ -39,7 +40,7 @@ public class SessionImpl implements EntityManager {
      */
     @Override
     public <T> T persist(T entity) {
-        T persistedEntity = entityPersister.persist(entity);
+        var persistedEntity = entityPersister.persist(entity);
         return persistenceContext.addEntity(persistedEntity);
     }
 

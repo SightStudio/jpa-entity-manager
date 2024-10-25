@@ -12,10 +12,12 @@ import static util.SQLUtil.SQL_노멀라이즈;
 public class QueryBuilderCreateTest {
 
     QueryBuilder queryBuilder;
+    QueryRunner fakeQueryRunner;
 
     @BeforeEach
     void setUp() {
         queryBuilder = new QueryBuilder();
+        fakeQueryRunner = new QueryRunner(null);
     }
 
     @Test
@@ -32,7 +34,7 @@ public class QueryBuilderCreateTest {
 
         // when
         String query = SQL_노멀라이즈(
-                queryBuilder.createTable(entityClass)
+                queryBuilder.createTable(entityClass, fakeQueryRunner)
                         .extractSql()
         );
 
@@ -62,7 +64,7 @@ public class QueryBuilderCreateTest {
 
         // when
         String query = SQL_노멀라이즈(
-                queryBuilder.createTable(entityClass)
+                queryBuilder.createTable(entityClass, fakeQueryRunner)
                         .extractSql()
         );
 
@@ -92,7 +94,7 @@ public class QueryBuilderCreateTest {
 
         // when
         String query = SQL_노멀라이즈(
-                queryBuilder.createTable(entityClass)
+                queryBuilder.createTable(entityClass, fakeQueryRunner)
                         .ifNotExist()
                         .extractSql()
         );

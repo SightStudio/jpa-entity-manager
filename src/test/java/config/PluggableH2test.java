@@ -5,6 +5,7 @@ import database.H2;
 import jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import orm.dsl.QueryRunner;
 import persistence.Application;
 
 import java.util.UUID;
@@ -13,14 +14,14 @@ import java.util.function.Consumer;
 public class PluggableH2test {
     private static final Logger logger = LoggerFactory.getLogger(PluggableH2test.class);
 
-    public void runInH2Db(Consumer<JdbcTemplate> jdbcTemplateConsumer) {
+    public void runInH2Db(Consumer<QueryRunner> queryRunner) {
         try {
             // 매번 테스트마다 다른 스키마에서 실행되어 독립성 유지
             final DatabaseServer server = new H2("test" + UUID.randomUUID());
             server.start();
 
             final JdbcTemplate jdbcTemplate = new JdbcTemplate(server.getConnection());
-            jdbcTemplateConsumer.accept(jdbcTemplate);
+            queryRunner.accept(new QueryRunner(jdbcTemplate));
             jdbcTemplate.execute("DROP ALL OBJECTS");
             server.stop();
         } catch (Exception e) {

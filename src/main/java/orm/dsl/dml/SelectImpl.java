@@ -55,12 +55,12 @@ public abstract class SelectImpl<E> implements SelectFromStep<E>{
     }
 
     @Override
-    public <T> List<T> fetch(RowMapper<T> rowMapper) {
+    public List<E> fetch(RowMapper<E> rowMapper) {
         return queryRunner.fetch(extractSql(), rowMapper);
     }
 
     @Override
-    public <T> T fetchOne(RowMapper<T> rowMapper) {
+    public E fetchOne(RowMapper<E> rowMapper) {
         return queryRunner.fetchOne(extractSql(), rowMapper);
     }
 

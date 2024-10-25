@@ -18,17 +18,19 @@ import static steps.Steps.테이블_생성;
 public class QueryBuilderSelectTest extends PluggableH2test {
 
     QueryBuilder queryBuilder;
+    QueryRunner fakeQueryRunner;
 
     @BeforeEach
     void setUp() {
         queryBuilder = new QueryBuilder();
+        fakeQueryRunner = new QueryRunner(null);
     }
 
     @Test
     @DisplayName("SELECT 절 생성 테스트")
     void DQL_SELECT_문_테스트() {
         // when
-        String query = queryBuilder.selectFrom(Person.class)
+        String query = queryBuilder.selectFrom(Person.class, fakeQueryRunner)
                 .extractSql();
 
         // then
@@ -39,7 +41,7 @@ public class QueryBuilderSelectTest extends PluggableH2test {
     @DisplayName("SELECT 절 조건 포함 실행 테스트")
     void DQL_SELECT_문_WHERE_포함_테스트() {
         // when
-        String query = queryBuilder.selectFrom(Person.class)
+        String query = queryBuilder.selectFrom(Person.class, fakeQueryRunner)
                 .where(eq("id", 1L))
                 .extractSql();
 
@@ -52,7 +54,7 @@ public class QueryBuilderSelectTest extends PluggableH2test {
     void DQL_SELECT_문_WHERE_다중_포함_테스트_가변인자() {
 
         // when
-        String query = queryBuilder.selectFrom(Person.class)
+        String query = queryBuilder.selectFrom(Person.class, fakeQueryRunner)
                 .where(
                     eq("id", 1L),
                     eq("name", "설동민")
@@ -67,7 +69,7 @@ public class QueryBuilderSelectTest extends PluggableH2test {
     @DisplayName("SELECT 절 다중 조건 포함 실행 테스트 - 체이닝된 조건절을 만들어보자")
     void DQL_SELECT_문_WHERE_다중_포함_테스트_AND() {
         // when
-        String query = queryBuilder.selectFrom(Person.class)
+        String query = queryBuilder.selectFrom(Person.class, fakeQueryRunner)
                 .where(
                         eq("id", 1L)
                         .and(eq("name", "설동민"))
@@ -82,15 +84,16 @@ public class QueryBuilderSelectTest extends PluggableH2test {
     @Test
     @DisplayName("SELECT 절 실제 쿼리 실행 테스트")
     void DQL_SELECT_실제_쿼리_실행() {
-        runInH2Db((jdbcTemplate) -> {
+        runInH2Db((queryRunner) -> {
             // given
-            QueryBuilder queryBuilder = new QueryBuilder(jdbcTemplate);
+            QueryBuilder queryBuilder = new QueryBuilder();
+
             Person newPerson = new Person(1L, 30, "설동민");
-            테이블_생성(jdbcTemplate, Person.class);
-            Person_엔티티_생성(jdbcTemplate, newPerson);
+            테이블_생성(queryRunner, Person.class);
+            Person_엔티티_생성(queryRunner, newPerson);
 
             // when
-            Person person = queryBuilder.selectFrom(Person.class)
+            Person person = queryBuilder.selectFrom(Person.class, queryRunner)
                     .where(eq("id", 1L))
                     .fetchOne(new PersonRowMapper());
 
@@ -102,14 +105,14 @@ public class QueryBuilderSelectTest extends PluggableH2test {
     @Test
     @DisplayName("SELECT 절 실제 쿼리 실행 테스트 - findById()")
     void findById_실헹() {
-        runInH2Db((jdbcTemplate) -> {
+        runInH2Db((queryRunner) -> {
             // given
-            QueryBuilder queryBuilder = new QueryBuilder(jdbcTemplate);
+            QueryBuilder queryBuilder = new QueryBuilder();
             Person newPerson = new Person(1L, 30, "설동민");
-            테이블_생성(jdbcTemplate, Person.class);
-            Person_엔티티_생성(jdbcTemplate, newPerson);
+            테이블_생성(queryRunner, Person.class);
+            Person_엔티티_생성(queryRunner, newPerson);
             // when
-            Person person = queryBuilder.selectFrom(Person.class).findById(1L)
+            Person person = queryBuilder.selectFrom(Person.class, queryRunner).findById(1L)
                     .fetchOne(new PersonRowMapper());
 
             // then
@@ -121,15 +124,15 @@ public class QueryBuilderSelectTest extends PluggableH2test {
     @Test
     @DisplayName("SELECT 절 실제 쿼리 실행 테스트 - findByAll()")
     void findAll_실행() {
-        runInH2Db((jdbcTemplate) -> {
+        runInH2Db((queryRunner) -> {
             // given
-            QueryBuilder queryBuilder = new QueryBuilder(jdbcTemplate);
-            테이블_생성(jdbcTemplate, Person.class);
-            Person_엔티티_생성(jdbcTemplate, new Person(1L, 30, "설동민"));
-            Person_엔티티_생성(jdbcTemplate, new Person(2L, 30, "설동민2"));
+            QueryBuilder queryBuilder = new QueryBuilder();
+            테이블_생성(queryRunner, Person.class);
+            Person_엔티티_생성(queryRunner, new Person(1L, 30, "설동민"));
+            Person_엔티티_생성(queryRunner, new Person(2L, 30, "설동민2"));
 
             // when
-            List<Person> people = queryBuilder.selectFrom(Person.class).findAll()
+            List<Person> people = queryBuilder.selectFrom(Person.class, queryRunner).findAll()
                     .fetch(new PersonRowMapper());
 
             // then
