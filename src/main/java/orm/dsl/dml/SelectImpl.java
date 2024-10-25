@@ -80,7 +80,7 @@ public abstract class SelectImpl<E> implements SelectFromStep<E>{
 
     @Override
     public E fetchOne() {
-        return queryRunner.fetchOne(extractSql(), new DefaultRowMapper<>(tableEntity.getTableClass()));
+        return queryRunner.fetchOne(extractSql(), new DefaultRowMapper<>(tableEntity));
     }
 
     @Override

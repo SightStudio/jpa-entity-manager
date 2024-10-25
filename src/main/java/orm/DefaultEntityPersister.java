@@ -14,13 +14,6 @@ public class DefaultEntityPersister implements EntityPersister {
     }
 
     @Override
-    public <T> T find(Class<T> clazz, Object id) {
-        return queryBuilder.selectFrom(clazz, queryRunner)
-                .findById(id)
-                .fetchOne();
-    }
-
-    @Override
     public <T> T persist(T entity) {
         return queryBuilder.insertIntoValues(entity, queryRunner)
                 .returnAsEntity();

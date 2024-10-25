@@ -7,10 +7,13 @@ public class SessionImpl implements EntityManager {
 
     private final StatefulPersistenceContext persistenceContext;
     private final EntityPersister entityPersister;
+    private final EntityLoader entityLoader;
 
     public SessionImpl(QueryRunner queryRunner) {
+        final var queryBuilder = new QueryBuilder();
         this.persistenceContext = new StatefulPersistenceContext();
-        this.entityPersister = new DefaultEntityPersister(new QueryBuilder(), queryRunner);
+        this.entityPersister = new DefaultEntityPersister(queryBuilder, queryRunner);
+        this.entityLoader = new DefaultEntityLoader(queryBuilder, queryRunner);
     }
 
     @Override
@@ -20,7 +23,7 @@ public class SessionImpl implements EntityManager {
             return entityInContext;
         }
 
-        T entity = entityPersister.find(clazz, id);
+        T entity = entityLoader.find(clazz, id);
         if (entity != null) {
             persistenceContext.addEntity(entity);
             return entity;

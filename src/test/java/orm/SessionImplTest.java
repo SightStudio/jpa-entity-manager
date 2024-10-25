@@ -103,9 +103,9 @@ public class SessionImplTest extends PluggableH2test {
         });
     }
 
-    // TODO: 추후 Hibernate 1차 캐시를 구현하면 persistence() 메서드 하나로 insert와 update를 구분 할 수 있어야한다.
+    // TODO: 추후 Hibernate의 더티체킹과 상태를 구현하면 persistence() 메서드 하나로 insert와 update를 구분 할 수 있어야한다. (EntityEntry)
     @Test
-    @DisplayName("merge 엔티티를 조회한다.")
+    @DisplayName("merge 엔티티를 조회한 후")
     void merge_테스트() {
         runInH2Db(queryRunner -> {
             // given
