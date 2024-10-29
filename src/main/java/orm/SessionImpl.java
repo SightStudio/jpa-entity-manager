@@ -1,6 +1,5 @@
 package orm;
 
-import orm.dirty_check.DirtyCheckMarker;
 import orm.dsl.QueryBuilder;
 import orm.dsl.QueryRunner;
 

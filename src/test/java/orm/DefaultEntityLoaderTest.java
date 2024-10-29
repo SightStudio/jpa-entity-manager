@@ -13,15 +13,15 @@ class DefaultEntityLoaderTest extends PluggableH2test {
 
     @Test
     @DisplayName("""
-            엔티티 로더는 하이버네이트 1차캐시와 관련 없기 때문에 저장한 객체의 
-            Equality가 같아도 Identity가 같지 않다. 
+            엔티티 로더는 하이버네이트 1차캐시와 관련 없기 때문에
+            저장한 객체의 Equality가 같아도 Identity가 같지 않다.
             """)
     void 엔티티_로더_테스트() {
         runInH2Db((queryRunner) -> {
             // given
             테이블_생성(queryRunner, Person.class);
             QueryBuilder queryBuilder = new QueryBuilder();
-            EntityManager entityManager = new SessionImpl(queryRunner);
+            EntityPersister entityManager = new DefaultEntityPersister(queryBuilder, queryRunner);
             Person newPerson = new Person(1L, 30, "설동민");
             entityManager.persist(newPerson);
 
