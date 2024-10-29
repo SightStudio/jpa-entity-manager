@@ -38,7 +38,7 @@ class QueryBuilderDeleteTest extends PluggableH2test {
     }
 
     @Test
-    @DisplayName("DELETE 절 조건 포함 실행 테스트")
+    @DisplayName("DELETE 절 조건 포함 쿼리생성 테스트")
     void DML_DELETE_문_조건절_테스트() {
         // given
         // when
@@ -55,7 +55,7 @@ class QueryBuilderDeleteTest extends PluggableH2test {
     }
 
     @Test
-    @DisplayName("DELETE 절 조건 실제 실행 테스트")
+    @DisplayName("DELETE 절 조건 실행 테스트")
     void DML_DELETE_문_실행_테스트() {
         runInH2Db((queryRunner) -> {
             // given
