@@ -9,7 +9,7 @@ import persistence.sql.ddl.Person;
 import static org.assertj.core.api.Assertions.assertThat;
 import static steps.Steps.테이블_생성;
 
-public class DefaultEntityLoaderTest extends PluggableH2test {
+class DefaultEntityLoaderTest extends PluggableH2test {
 
     @Test
     @DisplayName("""

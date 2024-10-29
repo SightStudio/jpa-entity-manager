@@ -10,7 +10,7 @@ import persistence.sql.ddl.Person;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class EntityIdHolderTest {
+class EntityIdHolderTest {
 
     @Test
     @DisplayName("EntityIdExtractor는 엔티티의 ID 필드와 값을 추출한다.")

@@ -10,7 +10,7 @@ import test_entity.PersonWithAI;
 import static org.assertj.core.api.Assertions.assertThat;
 import static steps.Steps.테이블_생성;
 
-public class SessionImplTest extends PluggableH2test {
+class SessionImplTest extends PluggableH2test {
 
     @Test
     @DisplayName("insert 후 find 메서드를 사용하면 엔티티 Object의 Equality와 Identity 모두 유지된다.")

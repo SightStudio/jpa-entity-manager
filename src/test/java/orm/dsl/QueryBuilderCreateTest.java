@@ -10,7 +10,7 @@ import test_double.FakeQueryRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.SQLUtil.SQL_노멀라이즈;
 
-public class QueryBuilderCreateTest {
+class QueryBuilderCreateTest {
 
     QueryBuilder queryBuilder;
     QueryRunner fakeQueryRunner;

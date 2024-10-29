@@ -12,7 +12,7 @@ import orm.exception.InvalidEntityException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-public class EntityValidatorTest {
+class EntityValidatorTest {
 
     @Test
     @DisplayName("@Entity가 아닌 클래스는 허용하지 않는다.")

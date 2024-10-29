@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static orm.dsl.DSL.eq;
 
-public class QueryRendererTest {
+class QueryRendererTest {
 
     @Test
     @DisplayName("bulk insert 를 위한 쿼리 렌더링 테스트")

@@ -12,7 +12,7 @@ import test_entity.기본생성자_없는_Entity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class TableEntityTest {
+class TableEntityTest {
 
     @Test
     @DisplayName("@Table 에너테이션이 있으면, 클래스명이 아닌 @Table으로 테이블명을 가져온다.")

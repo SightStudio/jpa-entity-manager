@@ -16,7 +16,7 @@ import static orm.dsl.DSL.eq;
 import static steps.Steps.Person_엔티티_생성;
 import static steps.Steps.테이블_생성;
 
-public class QueryBuilderSelectTest extends PluggableH2test {
+class QueryBuilderSelectTest extends PluggableH2test {
 
     QueryBuilder queryBuilder;
     QueryRunner fakeQueryRunner;

@@ -1,6 +1,5 @@
 package orm.dsl;
 
-import jakarta.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,7 +8,7 @@ import test_double.FakeQueryRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.SQLUtil.SQL_노멀라이즈;
 
-public class QueryBuilderDropTest {
+class QueryBuilderDropTest {
 
     QueryBuilder queryBuilder;
     QueryRunner fakeQueryRunner;
@@ -64,27 +63,4 @@ public class QueryBuilderDropTest {
         // then
         assertThat(query).isEqualTo(expectedQuery);
     }
-}
-
-@Entity
-@Table(name = "test_table")
-class DummyEntity2 {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "annotated_string")
-    private String col1;
-
-    @Column(name = "annotated_length_string", length = 120)
-    private String col2;
-
-    @Column(length = 120)
-    private String property1StrWithLength;
-
-    @Column
-    private String property1StrWithNo;
-
-    private String property2NoAnnotation;
 }

@@ -11,7 +11,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class TableFieldTest {
+class TableFieldTest {
 
     @Test
     @DisplayName("테이블의 필드들은 @Transient을 제외하고 등록된다.")

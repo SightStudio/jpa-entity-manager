@@ -1,13 +1,12 @@
 package orm.util;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import persistence.sql.ddl.Person;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ReflectionUtilsTest {
+class ReflectionUtilsTest {
 
     @Test
     @DisplayName("""
