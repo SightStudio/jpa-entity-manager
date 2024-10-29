@@ -19,10 +19,13 @@ public abstract class UpdateImpl<E> implements UpdateStep<E> {
     private final TableEntity<E> tableEntity;
     private final Conditions conditions;
 
+    private boolean withBitsetAware;
+
     public UpdateImpl(TableEntity<E> tableEntity, QueryRunner queryRunner) {
         this.tableEntity = tableEntity;
         this.queryRunner = queryRunner;
         this.conditions = new Conditions();
+        this.withBitsetAware = false;
     }
 
     @Override
@@ -38,13 +41,23 @@ public abstract class UpdateImpl<E> implements UpdateStep<E> {
     }
 
     @Override
+    public UpdateStep<E> withBitsetAware() {
+        this.withBitsetAware = true;
+        return this;
+    }
+
+    @Override
     public String extractSql() {
         QueryRenderer queryRenderer = new QueryRenderer();
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("UPDATE ");
         queryBuilder.append(tableEntity.getTableName());
         queryBuilder.append(" SET ");
-        queryBuilder.append(queryRenderer.joinColumnAndValuePairWithComma(tableEntity.getNonIdFields()));
+        queryBuilder.append(
+                withBitsetAware
+                        ? queryRenderer.joinColumnAndValuePairWithComma(tableEntity.getChangeFields())
+                        : queryRenderer.joinColumnAndValuePairWithComma(tableEntity.getNonIdFields())
+        );
 
         if (conditions.hasCondition()) {
             queryBuilder.append(queryRenderer.renderWhere(conditions));

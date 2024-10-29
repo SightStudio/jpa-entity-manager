@@ -14,6 +14,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,7 +34,11 @@ public class TableEntity<E> {
     private final Class<E> tableClass;
 
     private final TablePrimaryField id;
+
     private final List<TableField> allFields;
+
+    // allFields 중 변경된 필드를 추적하기 위한 BitSet
+    private final BitSet changedFields;
 
     private final JpaSettings jpaSettings;
 
@@ -41,22 +46,25 @@ public class TableEntity<E> {
         this.entity = createNewInstanceByDefaultConstructor(entityClass);
         new EntityValidator<>(entity).validate();
 
+        this.id = extractId(settings);
+        this.tableName = extractTableName(entityClass, settings);
         this.jpaSettings = settings;
-        this.tableName = extractTableName(entityClass);
         this.tableClass = entityClass;
-        this.id = extractId();
-        this.allFields = extractAllPersistenceFields(entityClass);
+        this.allFields = extractAllPersistenceFields(entityClass, settings);
+        this.changedFields = new BitSet(allFields.size());
     }
 
     public TableEntity(E entity, JpaSettings settings) {
-        new EntityValidator<>(entity).validate();
-        Class<E> entityClass = (Class<E>) entity.getClass();
-        this.jpaSettings = settings;
-        this.tableName = extractTableName(entityClass);
-        this.tableClass = entityClass;
         this.entity = entity;
-        this.id = extractId();
-        this.allFields = extractAllPersistenceFields(entityClass);
+        new EntityValidator<>(entity).validate();
+
+        Class<E> entityClass = (Class<E>) entity.getClass();
+        this.id = extractId(settings);
+        this.tableName = extractTableName(entityClass, settings);
+        this.jpaSettings = settings;
+        this.tableClass = entityClass;
+        this.allFields = extractAllPersistenceFields(entityClass, settings);
+        this.changedFields = new BitSet(allFields.size());
     }
 
     public TableEntity(Class<E> entityClass) {
@@ -83,6 +91,10 @@ public class TableEntity<E> {
         id.setIdValue(idValue);
     }
 
+    public void markFieldChanged(int index) {
+        changedFields.set(index, true);
+    }
+
     public boolean hasDbGeneratedId() {
         GenerationType idGenerationType = getIdGenerationType();
         return idGenerationType == GenerationType.IDENTITY;
@@ -104,87 +116,27 @@ public class TableEntity<E> {
                 .toList();
     }
 
-    // id 포함 모든 컬럼
+    // 변경된 컬럼만 리턴
+    public List<TableField> getChangeFields() {
+        List<TableField> allFields = this.allFields;
+        List<TableField> result = new ArrayList<>(allFields.size());
+
+        for (int i = 0; i < allFields.size(); i++) {
+            if (this.changedFields.get(i)) {
+                result.add(allFields.get(i));
+            }
+        }
+
+        return result;
+    }
+
+    // id를 포함 모든 컬럼
     public List<TableField> getAllFields() {
         return allFields;
     }
 
     public Class<E> getTableClass() {
         return tableClass;
-    }
-
-    /**
-     * 엔티티가 아닌 경우 예외 발생
-     *
-     * @param entityClass 엔티티 클래스
-     * @throws InvalidEntityException 엔티티가 아닌 경우
-     */
-    private void throwIfNotEntity(Class<E> entityClass) {
-        if (entityClass.getAnnotation(Entity.class) == null) {
-            throw new InvalidEntityException(entityClass.getName() + " is not an entity");
-        }
-    }
-
-    private String extractTableName(Class<E> entityClass) {
-        return jpaSettings.getNamingStrategy().namingTable(entityClass);
-    }
-
-    /**
-     * 엔티티로부터 ID 추출
-     *
-     * @return TablePrimaryField ID 필드
-     * @throws InvalidIdMappingException ID 필드가 없거나 2개 이상인 경우
-     */
-    private TablePrimaryField extractId() {
-        EntityIdHolder<E> entityIdHolder = new EntityIdHolder<>(entity);
-        Field idField = entityIdHolder.getIdField();
-        return new TablePrimaryField(idField, entity, jpaSettings);
-    }
-
-    /**
-     * 모든 영속성 필드 추출
-     *
-     * @param entityClass 엔티티 클래스
-     * @return List<TableField> 모든 영속성 필드
-     */
-    private List<TableField> extractAllPersistenceFields(Class<E> entityClass) {
-        Field[] declaredFields = entityClass.getDeclaredFields();
-
-        List<TableField> list = new ArrayList<>(declaredFields.length);
-        for (Field declaredField : declaredFields) {
-            boolean transientAnnotated = declaredField.isAnnotationPresent(Transient.class);
-            boolean columnAnnotated = declaredField.isAnnotationPresent(Column.class);
-            boolean idAnnotated = declaredField.isAnnotationPresent(Id.class);
-
-            if (transientAnnotated && columnAnnotated) {
-                throw new InvalidEntityException(String.format(
-                        "class %s @Transient & @Column cannot be used in same field"
-                        , entityClass.getName())
-                );
-            }
-
-            if (!transientAnnotated) {
-                list.add(
-                        idAnnotated
-                                ? new TablePrimaryField(declaredField, entity, jpaSettings)
-                                : new TableField(declaredField, entity, jpaSettings)
-                );
-            }
-        }
-        return list;
-    }
-
-    private E createNewInstanceByDefaultConstructor(Class<E> entityClass) {
-        try {
-            Constructor<E> defaultConstructor = entityClass.getDeclaredConstructor();
-            defaultConstructor.setAccessible(true);
-            return defaultConstructor.newInstance();
-        } catch (
-                NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e
-        ) {
-            logger.error(e.getMessage());
-            throw new EntityHasNoDefaultConstructorException("entity must contain default constructor");
-        }
     }
 
     public E getEntity() {
@@ -232,5 +184,67 @@ public class TableEntity<E> {
         } catch (IllegalAccessException e) {
             logger.error("Cannot access field: " + declaredField.getName(), e);
         }
+    }
+
+    private E createNewInstanceByDefaultConstructor(Class<E> entityClass) {
+        try {
+            Constructor<E> defaultConstructor = entityClass.getDeclaredConstructor();
+            defaultConstructor.setAccessible(true);
+            return defaultConstructor.newInstance();
+        } catch (
+                NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e
+        ) {
+            logger.error(e.getMessage());
+            throw new EntityHasNoDefaultConstructorException("entity must contain default constructor");
+        }
+    }
+
+    private String extractTableName(Class<E> entityClass, JpaSettings settings) {
+        return settings.getNamingStrategy().namingTable(entityClass);
+    }
+
+    /**
+     * 엔티티로부터 ID 추출
+     *
+     * @return TablePrimaryField ID 필드
+     * @throws InvalidIdMappingException ID 필드가 없거나 2개 이상인 경우
+     */
+    private TablePrimaryField extractId(JpaSettings settings) {
+        EntityIdHolder<E> entityIdHolder = new EntityIdHolder<>(entity);
+        Field idField = entityIdHolder.getIdField();
+        return new TablePrimaryField(idField, entity, settings);
+    }
+
+    /**
+     * 모든 영속성 필드 추출
+     *
+     * @param entityClass 엔티티 클래스
+     * @return List<TableField> 모든 영속성 필드
+     */
+    private List<TableField> extractAllPersistenceFields(Class<E> entityClass, JpaSettings settings) {
+        Field[] declaredFields = entityClass.getDeclaredFields();
+
+        List<TableField> list = new ArrayList<>(declaredFields.length);
+        for (Field declaredField : declaredFields) {
+            boolean transientAnnotated = declaredField.isAnnotationPresent(Transient.class);
+            boolean columnAnnotated = declaredField.isAnnotationPresent(Column.class);
+            boolean idAnnotated = declaredField.isAnnotationPresent(Id.class);
+
+            if (transientAnnotated && columnAnnotated) {
+                throw new InvalidEntityException(String.format(
+                        "class %s @Transient & @Column cannot be used in same field"
+                        , entityClass.getName())
+                );
+            }
+
+            if (!transientAnnotated) {
+                list.add(
+                        idAnnotated
+                                ? new TablePrimaryField(declaredField, entity, settings)
+                                : new TableField(declaredField, entity, settings)
+                );
+            }
+        }
+        return list;
     }
 }

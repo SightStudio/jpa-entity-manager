@@ -103,9 +103,8 @@ public class SessionImplTest extends PluggableH2test {
         });
     }
 
-    // TODO: 추후 Hibernate의 더티체킹과 상태를 구현하면 persistence() 메서드 하나로 insert와 update를 구분 할 수 있어야한다. (EntityEntry)
     @Test
-    @DisplayName("merge 엔티티를 조회한 후")
+    @DisplayName("merge 엔티티를 조회한 후 더티체킹을 통해 수정된 필드만 update 한다.")
     void merge_테스트() {
         runInH2Db(queryRunner -> {
             // given
@@ -117,15 +116,19 @@ public class SessionImplTest extends PluggableH2test {
 
             // when
             person.setName("설동민 - 수정함");
-            session.merge(person);
-            Person result = session.find(Person.class, 1L);
+            person.setAge(20);
+            Person mergedPerson = session.merge(person);
+            Person foundPerson = session.find(Person.class, 1L);
 
             // then
-            assertThat(result).satisfies(p -> {
-                assertThat(p.getId()).isEqualTo(1L);
-                assertThat(p.getAge()).isEqualTo(30);
-                assertThat(p.getName()).isEqualTo("설동민 - 수정함");
-            });
+            assertThat(mergedPerson)
+                    .isSameAs(person) // merge 되기 전의 엔티티와 identity가 같아야 한다.
+                    .isSameAs(foundPerson) // merge 후 다시 조회한 엔티티와도 identity가 같아야 한다.
+                    .satisfies(p -> {
+                        assertThat(p.getId()).isEqualTo(1L);
+                        assertThat(p.getAge()).isEqualTo(20);
+                        assertThat(p.getName()).isEqualTo("설동민 - 수정함");
+                    });
         });
     }
 }

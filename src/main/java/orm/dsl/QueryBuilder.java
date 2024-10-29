@@ -60,6 +60,11 @@ public class QueryBuilder implements QueryProvider {
                 .update(new TableEntity<>(entityClass, settings));
     }
 
+    public <E> UpdateStep<E> update(TableEntity<E> entityEntity, QueryRunner queryRunner) {
+        return new DialectStatementLocator(dialect(), queryRunner)
+                .update(entityEntity);
+    }
+
     public SQLDialect dialect() {
         return this.settings.getDialect();
     }

@@ -7,6 +7,7 @@ import orm.exception.CannotExtractEntityFieldValueException;
 import orm.settings.JpaSettings;
 
 import java.lang.reflect.Field;
+import java.util.BitSet;
 
 public class TableField {
 

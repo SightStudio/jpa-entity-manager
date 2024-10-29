@@ -19,6 +19,10 @@ public class Person {
         this.name = name;
     }
 
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
     public Person() {
     }
 

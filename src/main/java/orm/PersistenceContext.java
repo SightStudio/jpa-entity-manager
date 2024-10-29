@@ -6,7 +6,7 @@ public interface PersistenceContext {
 
     <T> T addEntity(T entity);
 
-    void updateEntity(Object entity);
-
     void removeEntity(Object entity);
+
+    Object getDatabaseSnapshot(Object entity, EntityPersister entityPersister);
 }

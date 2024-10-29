@@ -1,5 +1,6 @@
 package orm;
 
+import orm.dirty_check.DirtyCheckMarker;
 import orm.dsl.QueryBuilder;
 import orm.dsl.QueryRunner;
 
@@ -40,8 +41,12 @@ public class SessionImpl implements EntityManager {
 
     @Override
     public <T> T merge(T entity) {
-        entityPersister.update(entity);
-        persistenceContext.updateEntity(entity);
+        Object databaseSnapshot = persistenceContext.getDatabaseSnapshot(entity, entityPersister);
+
+        entityPersister.update(entity, databaseSnapshot);
+
+        persistenceContext.removeEntity(entity);
+        persistenceContext.addEntity(entity);
         return entity;
     }
 
