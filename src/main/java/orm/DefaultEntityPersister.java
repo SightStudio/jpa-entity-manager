@@ -29,7 +29,6 @@ public class DefaultEntityPersister implements EntityPersister {
         boolean hasDirty = new DirtyCheckMarker<>(objectTableEntity, oldVersionTableEntity).compareAndMarkChangedField();
         if (hasDirty) {
             queryBuilder.update(objectTableEntity, queryRunner)
-                    .withBitsetAware()
                     .byId()
                     .execute();
         }
