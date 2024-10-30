@@ -25,12 +25,13 @@ public class DefaultEntityPersister implements EntityPersister {
         var objectTableEntity = new TableEntity<>(entity);
         var oldVersionTableEntity = new TableEntity<>(oldVersion);
 
-        new DirtyCheckMarker<>(objectTableEntity, oldVersionTableEntity).compareAndMarkChangedField();
-
-        queryBuilder.update(objectTableEntity, queryRunner)
-                .withBitsetAware()
-                .byId()
-                .execute();
+        boolean hasDirty = new DirtyCheckMarker<>(objectTableEntity, oldVersionTableEntity).compareAndMarkChangedField();
+        if (hasDirty) {
+            queryBuilder.update(objectTableEntity, queryRunner)
+                    .withBitsetAware()
+                    .byId()
+                    .execute();
+        }
 
         return entity;
     }

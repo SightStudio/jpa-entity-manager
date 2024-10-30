@@ -22,9 +22,10 @@ class DirtyCheckMarkerTest {
         var person = new TableEntity<>(new Person(1L, 20, "설동민 (아직 젊음)"));
 
         // when
-        new DirtyCheckMarker<>(person, snapshot).compareAndMarkChangedField(); // 더티체킹 진행
+        boolean hasDirty = new DirtyCheckMarker<>(person, snapshot).compareAndMarkChangedField();// 더티체킹 진행
 
         // then
+        assertThat(hasDirty).isTrue();
         assertThat(person.getChangeFields()).asList()
                 .extracting("fieldValue")
                 .containsExactlyInAnyOrder(20, "설동민 (아직 젊음)");
