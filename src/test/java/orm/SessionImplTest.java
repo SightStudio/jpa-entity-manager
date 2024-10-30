@@ -126,4 +126,22 @@ class SessionImplTest extends PluggableH2test {
                     .isSameAs(foundPerson); // merge 후 다시 조회한 엔티티와도 identity가 같아야 한다.
         });
     }
+
+    @Test
+    @DisplayName("신규 엔티티를 merge 하면 insert 되어 PK가 존재해야한다.")
+    void 신규_엔티티_merge() {
+        runInH2Db(queryRunner -> {
+            // given
+            테이블_생성(queryRunner, PersonWithAI.class);
+            SessionImpl session = new SessionImpl(queryRunner);
+
+            PersonWithAI personWithAI = new PersonWithAI(30L, "설동민");
+
+            // when
+            session.merge(personWithAI);
+
+            // then
+            assertThat(personWithAI.getId()).isNotNull();
+        });
+    }
 }

@@ -6,7 +6,7 @@ import orm.dsl.holder.EntityIdHolder;
 
 public class SessionImpl implements EntityManager {
 
-    private final StatefulPersistenceContext persistenceContext;
+    private final PersistenceContext persistenceContext;
     private final EntityPersister entityPersister;
     private final EntityLoader entityLoader;
 
@@ -42,8 +42,19 @@ public class SessionImpl implements EntityManager {
     @Override
     public <T> T merge(T entity) {
         var idHolder = new EntityIdHolder<>(entity);
-        Object databaseSnapshot = persistenceContext.getDatabaseSnapshot(idHolder, entityPersister);
 
+        // 1차 캐시에 존재하는지 확인 후 db도 확인 후 없으면 insert
+        boolean hasEntityInContext = persistenceContext.contains(idHolder);
+        if (!hasEntityInContext) {
+            T loadedEntity = entityLoader.find(idHolder);
+            if (loadedEntity == null) {
+                return persist(entity);
+            }
+            persistenceContext.addEntity(loadedEntity);
+        }
+
+        // 존재하는 경우 update
+        Object databaseSnapshot = persistenceContext.getDatabaseSnapshot(idHolder, entityPersister);
         entityPersister.update(entity, databaseSnapshot);
         persistenceContext.addEntity(entity);
         return entity;

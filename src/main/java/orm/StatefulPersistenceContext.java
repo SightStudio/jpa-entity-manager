@@ -35,9 +35,15 @@ public class StatefulPersistenceContext implements PersistenceContext {
     }
 
     @Override
+    public <T> boolean contains(EntityIdHolder<T> idHolder) {
+        return cachedEntities.containsKey(new EntityKey(idHolder));
+    }
+
+    @Override
     public void removeEntity(Object entity) {
         var entityKey = new EntityKey(new EntityIdHolder<>(entity));
         cachedEntities.remove(entityKey);
+        snapshotEntity.remove(entityKey);
     }
 
     @Override
