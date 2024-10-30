@@ -1,5 +1,7 @@
 package orm;
 
+import orm.dsl.holder.EntityIdHolder;
+
 public interface PersistenceContext {
 
     <T> T getEntity(Class<T> entityClazz, Object id);
@@ -8,5 +10,5 @@ public interface PersistenceContext {
 
     void removeEntity(Object entity);
 
-    Object getDatabaseSnapshot(Object entity, EntityPersister entityPersister);
+    <T> Object getDatabaseSnapshot(EntityIdHolder<T> idHolder, EntityPersister entityPersister);
 }

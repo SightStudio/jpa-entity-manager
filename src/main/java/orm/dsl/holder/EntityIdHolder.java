@@ -15,10 +15,10 @@ public class EntityIdHolder<E> {
 
     private final Field idField;
     private final Object idValue;
-    private final Class<?> entityClass;
+    private final Class<E> entityClass;
 
     public EntityIdHolder(E entity) {
-        this.entityClass = entity.getClass();
+        this.entityClass = (Class<E>) entity.getClass();
         this.idField = extractIdField(entity.getClass());
         this.idValue = extractIdValue(entity);
     }
@@ -31,7 +31,7 @@ public class EntityIdHolder<E> {
         return idValue;
     }
 
-    public Class<?> getEntityClass() {
+    public Class<E> getEntityClass() {
         return entityClass;
     }
 

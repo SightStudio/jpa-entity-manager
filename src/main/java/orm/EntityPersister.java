@@ -1,5 +1,7 @@
 package orm;
 
+import orm.dsl.holder.EntityIdHolder;
+
 /**
  * 실제 DB에 쿼리를 질의하는 인터페이스
  */
@@ -11,5 +13,5 @@ public interface EntityPersister {
 
     void remove(Object entity);
 
-    <T> T getDatabaseSnapshot(Class<T> entityClazz, Object id);
+    <T> T getDatabaseSnapshot(EntityIdHolder<T> idHolder);
 }

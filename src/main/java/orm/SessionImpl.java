@@ -2,6 +2,7 @@ package orm;
 
 import orm.dsl.QueryBuilder;
 import orm.dsl.QueryRunner;
+import orm.dsl.holder.EntityIdHolder;
 
 public class SessionImpl implements EntityManager {
 
@@ -40,11 +41,10 @@ public class SessionImpl implements EntityManager {
 
     @Override
     public <T> T merge(T entity) {
-        Object databaseSnapshot = persistenceContext.getDatabaseSnapshot(entity, entityPersister);
+        var idHolder = new EntityIdHolder<>(entity);
+        Object databaseSnapshot = persistenceContext.getDatabaseSnapshot(idHolder, entityPersister);
 
         entityPersister.update(entity, databaseSnapshot);
-
-        persistenceContext.removeEntity(entity);
         persistenceContext.addEntity(entity);
         return entity;
     }

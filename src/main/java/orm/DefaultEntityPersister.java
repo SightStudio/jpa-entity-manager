@@ -3,6 +3,7 @@ package orm;
 import orm.dirty_check.DirtyCheckMarker;
 import orm.dsl.QueryBuilder;
 import orm.dsl.QueryRunner;
+import orm.dsl.holder.EntityIdHolder;
 
 public class DefaultEntityPersister implements EntityPersister {
 
@@ -42,7 +43,9 @@ public class DefaultEntityPersister implements EntityPersister {
     }
 
     @Override
-    public <T> T getDatabaseSnapshot(Class<T> entityClazz,  Object id) {
-        return queryBuilder.selectFrom(entityClazz, queryRunner).findById(id).fetchOne();
+    public <T> T getDatabaseSnapshot(EntityIdHolder<T> idHolder) {
+        return queryBuilder.selectFrom(idHolder.getEntityClass(), queryRunner)
+                .findById(idHolder.getIdValue())
+                .fetchOne();
     }
 }

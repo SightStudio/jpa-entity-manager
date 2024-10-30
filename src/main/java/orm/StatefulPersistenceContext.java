@@ -41,8 +41,7 @@ public class StatefulPersistenceContext implements PersistenceContext {
     }
 
     @Override
-    public Object getDatabaseSnapshot(Object entity, EntityPersister entityPersister) {
-        var idHolder = new EntityIdHolder<>(entity);
+    public <T> Object getDatabaseSnapshot(EntityIdHolder<T> idHolder, EntityPersister entityPersister) {
         var entityKey = new EntityKey(idHolder);
 
         var snapshot = snapshotEntity.get(entityKey);
@@ -50,7 +49,7 @@ public class StatefulPersistenceContext implements PersistenceContext {
             return snapshot;
         }
 
-        Object databaseSnapshot = entityPersister.getDatabaseSnapshot(idHolder.getEntityClass(), idHolder.getIdValue());
+        Object databaseSnapshot = entityPersister.getDatabaseSnapshot(idHolder);
         if (databaseSnapshot != null) {
             snapshotEntity.put(entityKey, databaseSnapshot);
         }
