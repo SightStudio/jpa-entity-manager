@@ -17,6 +17,13 @@ public class SessionImpl implements EntityManager {
         this.entityLoader = new DefaultEntityLoader(queryBuilder, queryRunner);
     }
 
+    public SessionImpl(QueryRunner queryRunner, PersistenceContext persistenceContext) {
+        final var queryBuilder = new QueryBuilder();
+        this.persistenceContext = persistenceContext;
+        this.entityPersister = new DefaultEntityPersister(queryBuilder, queryRunner);
+        this.entityLoader = new DefaultEntityLoader(queryBuilder, queryRunner);
+    }
+
     @Override
     public <T> T find(Class<T> clazz, Object id) {
         T entityInContext = persistenceContext.getEntity(clazz, id);
