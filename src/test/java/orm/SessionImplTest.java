@@ -104,8 +104,8 @@ class SessionImplTest extends PluggableH2test {
     }
 
     @Test
-    @DisplayName("merge 엔티티를 조회한 후 더티체킹을 통해 수정된 필드만 update 한다.")
-    void merge_테스트() {
+    @DisplayName("엔티티 수정, merge 이후 엔티티를 재조회하면 수정 전, merge 후, 재조회한 객체의 identity가 모두 같아야 한다.")
+    void merge_후_재조회_테스트() {
         runInH2Db(queryRunner -> {
             // given
             테이블_생성(queryRunner, Person.class);
@@ -113,22 +113,17 @@ class SessionImplTest extends PluggableH2test {
             session.persist(new Person(1L, 30, "설동민"));
 
             Person person = session.find(Person.class, 1L);
-
-            // when
             person.setName("설동민 - 수정함");
             person.setAge(20);
+
+            // when
             Person mergedPerson = session.merge(person);
             Person foundPerson = session.find(Person.class, 1L);
 
             // then
             assertThat(mergedPerson)
                     .isSameAs(person) // merge 되기 전의 엔티티와 identity가 같아야 한다.
-                    .isSameAs(foundPerson) // merge 후 다시 조회한 엔티티와도 identity가 같아야 한다.
-                    .satisfies(p -> {
-                        assertThat(p.getId()).isEqualTo(1L);
-                        assertThat(p.getAge()).isEqualTo(20);
-                        assertThat(p.getName()).isEqualTo("설동민 - 수정함");
-                    });
+                    .isSameAs(foundPerson); // merge 후 다시 조회한 엔티티와도 identity가 같아야 한다.
         });
     }
 }
