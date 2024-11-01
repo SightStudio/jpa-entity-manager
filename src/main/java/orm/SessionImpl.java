@@ -57,7 +57,7 @@ public class SessionImpl implements EntityManager {
             if (loadedEntity == null) {
                 return persist(entity);
             }
-            persistenceContext.addEntity(loadedEntity);
+            return persistenceContext.addEntity(loadedEntity);
         }
 
         // 존재하는 경우 update
