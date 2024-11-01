@@ -16,6 +16,11 @@ public class StatefulPersistenceContext implements PersistenceContext {
         this.snapshotEntity = new HashMap<>();
     }
 
+    public StatefulPersistenceContext(Map<EntityKey, Object> cachedEntities, Map<EntityKey, Object> snapshotEntity) {
+        this.cachedEntities = cachedEntities;
+        this.snapshotEntity = snapshotEntity;
+    }
+
     @Override
     public <T> T getEntity(Class<T> clazz, Object id) {
         final EntityKey entityKey = new EntityKey(clazz, id);
