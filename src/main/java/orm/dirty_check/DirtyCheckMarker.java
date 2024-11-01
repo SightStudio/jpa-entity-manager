@@ -18,6 +18,14 @@ public class DirtyCheckMarker<E> {
         this.snapshotEntity = snapshotEntity;
     }
 
+    public DirtyCheckMarker(E entity, E snapshotEntity) {
+        this(new TableEntity<>(entity), new TableEntity<>(snapshotEntity));
+    }
+
+    public TableEntity<E> getEntity() {
+        return entity;
+    }
+
     /**
      * 스냅샷과 비교하여 변경된 필드를 마킹한다.
      * @return 변경된 필드가 있는지 여부

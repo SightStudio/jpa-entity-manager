@@ -23,12 +23,11 @@ public class DefaultEntityPersister implements EntityPersister {
 
     @Override
     public <T> T update(T entity, T oldVersion) {
-        var objectTableEntity = new TableEntity<>(entity);
-        var oldVersionTableEntity = new TableEntity<>(oldVersion);
+        final var dirtyCheckMarker = new DirtyCheckMarker<>(entity, oldVersion);
+        final var hasDirty = dirtyCheckMarker.compareAndMarkChangedField();
 
-        boolean hasDirty = new DirtyCheckMarker<>(objectTableEntity, oldVersionTableEntity).compareAndMarkChangedField();
         if (hasDirty) {
-            queryBuilder.update(objectTableEntity, queryRunner)
+            queryBuilder.update(dirtyCheckMarker.getEntity(), queryRunner)
                     .byId()
                     .execute();
         }
