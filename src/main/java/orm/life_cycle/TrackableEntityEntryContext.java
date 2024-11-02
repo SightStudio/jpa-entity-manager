@@ -14,16 +14,16 @@ import java.util.Map;
  */
 public class TrackableEntityEntryContext extends EntityEntryContext {
 
-    private final Map<EntityKey, List<EntityEntry>> entryHistoryMap;
+    private final Map<EntityKey, List<EntityEntry>> entryChangeLogMap;
 
     public TrackableEntityEntryContext() {
         super();
-        this.entryHistoryMap = new LinkedHashMap<>();
+        this.entryChangeLogMap = new LinkedHashMap<>();
     }
 
     public TrackableEntityEntryContext(Map<EntityKey, EntityEntry> entryMap) {
         super(entryMap);
-        this.entryHistoryMap = new LinkedHashMap<>();
+        this.entryChangeLogMap = new LinkedHashMap<>();
     }
 
     @Override
@@ -33,7 +33,11 @@ public class TrackableEntityEntryContext extends EntityEntryContext {
     }
 
     public <E> List<EntityEntry> getEntryChangeLog(E entity) {
-        return entryHistoryMap.get(EntityKey.ofEntity(entity));
+        return entryChangeLogMap.get(EntityKey.ofEntity(entity));
+    }
+
+    public <E> List<EntityEntry> getEntryChangeLog(Class<E> entity, Object id) {
+        return entryChangeLogMap.get(new EntityKey(entity, id));
     }
 
     // 업데이트 전 상태 기록
@@ -42,7 +46,7 @@ public class TrackableEntityEntryContext extends EntityEntryContext {
             return;
         }
 
-        entryHistoryMap.putIfAbsent(entityKey, new ArrayList<>());
-        entryHistoryMap.get(entityKey).add(new SimpleEntityEntry(entityKey.idValue(), status));
+        entryChangeLogMap.putIfAbsent(entityKey, new ArrayList<>());
+        entryChangeLogMap.get(entityKey).add(new SimpleEntityEntry(entityKey.idValue(), status));
     }
 }
