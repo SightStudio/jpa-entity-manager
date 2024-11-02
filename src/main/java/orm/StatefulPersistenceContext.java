@@ -46,10 +46,6 @@ public class StatefulPersistenceContext implements PersistenceContext {
     @Override
     public <T> T addEntity(T entity) {
         var entityKey = EntityKey.ofEntity(entity);
-        if (entityKey.hasNullIdValue()) {
-            return entity;
-        }
-
         cachedEntities.put(entityKey, entity);
         snapshotEntity.put(entityKey, ReflectionUtils.deepCopyObject(entity));
         return entity;
