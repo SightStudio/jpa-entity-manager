@@ -39,14 +39,6 @@ public class QueryRunner {
         return jdbcTemplate.executeUpdateWithReturningGenKey(sql);
     }
 
-    public boolean isAutoCommit() {
-        try {
-            return jdbcTemplate.getConnection().getAutoCommit();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private void throwIfNoJdbcTemplate() {
         if (jdbcTemplate == null) {
             throw new IllegalStateException("JdbcTemplate is not set");

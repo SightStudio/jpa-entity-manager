@@ -11,6 +11,4 @@ public interface EntityManager {
     <T> T merge(T entity);
 
     void detach(Object entity);
-
-//    void flush();
 }
