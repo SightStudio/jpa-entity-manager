@@ -21,6 +21,10 @@ public class JdbcTemplate {
         }
     }
 
+    public Connection getConnection() {
+        return connection;
+    }
+
     public Object executeUpdateWithReturningGenKey(final String sql) {
         try (final Statement stmt = connection.createStatement()) {
             int affectedRows = stmt.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);

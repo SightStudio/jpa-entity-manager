@@ -3,6 +3,7 @@ package orm.dsl;
 import jdbc.JdbcTemplate;
 import jdbc.RowMapper;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class QueryRunner {
@@ -36,6 +37,14 @@ public class QueryRunner {
     public Object executeUpdateWithReturningKey(String sql) {
         throwIfNoJdbcTemplate();
         return jdbcTemplate.executeUpdateWithReturningGenKey(sql);
+    }
+
+    public boolean isAutoCommit() {
+        try {
+            return jdbcTemplate.getConnection().getAutoCommit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void throwIfNoJdbcTemplate() {

@@ -3,9 +3,14 @@ package orm;
 import config.PluggableH2test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import orm.life_cycle.EntityEntry;
+import orm.life_cycle.Status;
+import orm.life_cycle.TrackableEntityEntryContext;
 import persistence.sql.ddl.Person;
+import test_entity.PersonWithAI;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +28,7 @@ public class StatefulPersistenceContextTest extends PluggableH2test {
             // given
             PersistenceContext trackablePersistenceContext = new StatefulPersistenceContext(_1차캐시, DB_스냅샷);
             테이블_생성(queryRunner, Person.class);
-            SessionImpl session = new SessionImpl(queryRunner, trackablePersistenceContext);
+            EntityManager session = new SessionImpl(queryRunner, trackablePersistenceContext);
 
             // when
             session.persist(new Person(1L, 30, "설동민"));
@@ -45,7 +50,7 @@ public class StatefulPersistenceContextTest extends PluggableH2test {
             // given
             PersistenceContext trackablePersistenceContext = new StatefulPersistenceContext(_1차캐시, DB_스냅샷);
             테이블_생성(queryRunner, Person.class);
-            SessionImpl session = new SessionImpl(queryRunner, trackablePersistenceContext);
+            EntityManager session = new SessionImpl(queryRunner, trackablePersistenceContext);
 
             Person origin = new Person(1L, 30, "설동민");
             session.persist(origin); // insert

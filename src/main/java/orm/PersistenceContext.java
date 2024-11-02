@@ -1,6 +1,8 @@
 package orm;
 
 import orm.dsl.holder.EntityIdHolder;
+import orm.life_cycle.EntityEntry;
+import orm.life_cycle.Status;
 
 public interface PersistenceContext {
 
@@ -13,4 +15,10 @@ public interface PersistenceContext {
     void removeEntity(Object entity);
 
     <T> Object getDatabaseSnapshot(EntityIdHolder<T> idHolder, EntityPersister entityPersister);
+
+    <T> EntityEntry getEntry(EntityIdHolder<T> idHolder);
+
+    EntityEntry getEntry(Object entity);
+
+    EntityEntry addEntry(Object entity, Status status);
 }

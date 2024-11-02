@@ -3,6 +3,7 @@ package orm;
 import orm.dsl.QueryBuilder;
 import orm.dsl.QueryRunner;
 import orm.dsl.holder.EntityIdHolder;
+import orm.life_cycle.Status;
 
 public class SessionImpl implements EntityManager {
 
@@ -42,7 +43,9 @@ public class SessionImpl implements EntityManager {
 
     @Override
     public <T> T persist(T entity) {
+        persistenceContext.addEntry(entity, Status.SAVING);
         var persistedEntity = entityPersister.persist(entity);
+        persistenceContext.addEntry(persistedEntity, Status.MANAGED);
         return persistenceContext.addEntity(persistedEntity);
     }
 
@@ -69,7 +72,12 @@ public class SessionImpl implements EntityManager {
 
     @Override
     public void remove(Object entity) {
+        persistenceContext.addEntry(entity, Status.DELETED);
         entityPersister.remove(entity);
         persistenceContext.removeEntity(entity);
+    }
+
+    public void doInPersist() {
+
     }
 }
