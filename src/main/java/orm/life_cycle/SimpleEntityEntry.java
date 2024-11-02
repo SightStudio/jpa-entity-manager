@@ -1,23 +1,15 @@
 package orm.life_cycle;
 
+import orm.EntityKey;
+
 public class SimpleEntityEntry implements EntityEntry {
 
-    private final Object id;
+    private final EntityKey entityKey;
     private Status status;
 
-    public SimpleEntityEntry(EntityEntry entityEntry) {
-        this.id = entityEntry.getId();
-        this.status = entityEntry.getStatus();
-    }
-
-    public SimpleEntityEntry(Object idValue, Status status) {
-        this.id = idValue;
+    public SimpleEntityEntry(EntityKey entityKey, Status status) {
+        this.entityKey = entityKey;
         this.status = status;
-    }
-
-    public SimpleEntityEntry(Object idValue) {
-        this.id = idValue;
-        this.status = Status.MANAGED;
     }
 
     @Override
@@ -38,6 +30,6 @@ public class SimpleEntityEntry implements EntityEntry {
 
     @Override
     public Object getId() {
-        return id;
+        return entityKey.idValue();
     }
 }

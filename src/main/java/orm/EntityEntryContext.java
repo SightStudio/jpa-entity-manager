@@ -24,7 +24,7 @@ public class EntityEntryContext {
             return null;
         }
 
-        EntityEntry simpleEntityEntry = new SimpleEntityEntry(entityKey.idValue(), status);
+        EntityEntry simpleEntityEntry = new SimpleEntityEntry(entityKey, status);
         entryMap.put(entityKey, simpleEntityEntry);
         return simpleEntityEntry;
     }

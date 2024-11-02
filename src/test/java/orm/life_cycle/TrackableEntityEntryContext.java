@@ -47,6 +47,6 @@ public class TrackableEntityEntryContext extends EntityEntryContext {
         }
 
         entryChangeLogMap.putIfAbsent(entityKey, new ArrayList<>());
-        entryChangeLogMap.get(entityKey).add(new SimpleEntityEntry(entityKey.idValue(), status));
+        entryChangeLogMap.get(entityKey).add(new SimpleEntityEntry(entityKey, status));
     }
 }

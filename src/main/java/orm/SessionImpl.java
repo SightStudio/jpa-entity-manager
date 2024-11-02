@@ -31,7 +31,6 @@ public class SessionImpl implements EntityManager {
         // 엔티티가 이미 1차 캐시에 존재하는 경우
         T entityInContext = persistenceContext.getEntity(clazz, id);
         if (entityInContext != null) {
-            persistenceContext.addEntry(entityInContext, Status.MANAGED);
             return entityInContext;
         }
 
@@ -46,7 +45,6 @@ public class SessionImpl implements EntityManager {
         }
 
         // 엔티티가 DB에서 조회해도 없는 경우
-        persistenceContext.removeEntry(entityKey);
         return null;
     }
 
