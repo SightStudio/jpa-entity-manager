@@ -133,7 +133,7 @@ public class EntityEntryContextTest extends PluggableH2test {
     }
 
     @Test
-    @DisplayName("엔티티 조회 후 detach 이후 재조회하면 SAVING -> MANAGED -> DELETE -> GONE 상태가 된다.")
+    @DisplayName("엔티티 조회 후 detach 이후 재조회하면 LOADING -> MANAGED -> GONE -> LOADING -> MANAGED 상태가 된다.")
     void entityEntry_find_detach_find_테스트() {
         TrackableEntityEntryContext entityEntryContext = new TrackableEntityEntryContext();
 
