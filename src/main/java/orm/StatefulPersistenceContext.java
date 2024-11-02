@@ -14,22 +14,22 @@ public class StatefulPersistenceContext implements PersistenceContext {
     private final Map<EntityKey, Object> snapshotEntity;
     private final EntityEntryContext entryContext;
 
+    public StatefulPersistenceContext(Map<EntityKey, Object> cachedEntities, Map<EntityKey, Object> snapshotEntity, EntityEntryContext entryContext) {
+        this.cachedEntities = cachedEntities;
+        this.snapshotEntity = snapshotEntity;
+        this.entryContext = entryContext;
+    }
+
     public StatefulPersistenceContext() {
-        this.cachedEntities = new HashMap<>();
-        this.snapshotEntity = new HashMap<>();
-        this.entryContext = new EntityEntryContext();
+        this(new HashMap<>(), new HashMap<>(), new EntityEntryContext());
     }
 
     public StatefulPersistenceContext(Map<EntityKey, Object> cachedEntities, Map<EntityKey, Object> snapshotEntity) {
-        this.cachedEntities = cachedEntities;
-        this.snapshotEntity = snapshotEntity;
-        this.entryContext = new EntityEntryContext();
+        this(cachedEntities, snapshotEntity, new EntityEntryContext());
     }
 
     public StatefulPersistenceContext(EntityEntryContext entryContext) {
-        this.cachedEntities = new HashMap<>();
-        this.snapshotEntity = new HashMap<>();
-        this.entryContext = entryContext;
+        this(new HashMap<>(), new HashMap<>(), entryContext);
     }
 
     @Override
@@ -40,13 +40,16 @@ public class StatefulPersistenceContext implements PersistenceContext {
             return null;
         }
 
-        entryContext.addEntry(entityKey, Status.MANAGED);
         return castEntity(clazz, cachedEntity);
     }
 
     @Override
     public <T> T addEntity(T entity) {
         var entityKey = EntityKey.ofEntity(entity);
+        if (entityKey.hasNullIdValue()) {
+            return entity;
+        }
+
         cachedEntities.put(entityKey, entity);
         snapshotEntity.put(entityKey, ReflectionUtils.deepCopyObject(entity));
         return entity;
@@ -95,7 +98,30 @@ public class StatefulPersistenceContext implements PersistenceContext {
     @Override
     public EntityEntry addEntry(Object entity, Status status) {
         var idHolder = new EntityIdHolder<>(entity);
-        return entryContext.addEntry(new EntityKey(idHolder), status);
+        return this.addEntry(new EntityKey(idHolder), status);
+    }
+
+    @Override
+    public EntityEntry addEntry(EntityKey entityKey, Status status) {
+        EntityEntry entry = entryContext.getEntry(entityKey);
+
+        // 상태가 없으면 추가
+        if (entry == null) {
+            return entryContext.addEntry(entityKey, status);
+        }
+
+        // 상태가 이전과 동일하면 add 하지 않음
+        if (entry.getStatus() == status) {
+            return entry;
+        }
+
+        // 상태가 다르면 추가
+        return entryContext.addEntry(entityKey, status);
+    }
+
+    @Override
+    public void removeEntry(EntityKey entityKey) {
+        entryContext.removeEntry(entityKey);
     }
 
     private <T> T castEntity(Class<T> clazz, Object persistedEntity) {
